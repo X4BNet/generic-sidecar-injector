@@ -8,6 +8,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"os"
 	"os/signal"
@@ -32,7 +33,15 @@ const (
 	errorExitCode   = 1
 )
 
+type Options struct {
+	Test bool `short:"t" long:"test" description:"Perform a configuration test and exit."`
+}
+
 func main() {
+	opts := Options{}
+
+	flag.BoolVar(&opts.Test, "test", false, "Perform a configuration test and exit.")
+
 	webhookConfig, err := config.NewWebhookConfig()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "api=main, reason=config.NewWebhookConfig, err=%v\n", err)
@@ -62,6 +71,11 @@ func main() {
 	if err != nil {
 		glog.Errorf("api=main, reason=sidecarconfig.TemplateSanityCheck, message=template may contain ineligible fields, err=%v", err)
 		os.Exit(errorExitCode)
+	}
+
+	if opts.Test {
+		glog.Info("api=main, reason=opts.Test, message=configuration test successful")
+		os.Exit(successExitCode)
 	}
 
 	mutationConfigs, err := mutationconfig.NewMutatingConfigs(webhookConfig.MutationConfigFile)

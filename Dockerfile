@@ -17,5 +17,6 @@ RUN GIT_HASH=$(git rev-parse --short HEAD) && GIT_TAG=$(git tag | tail -1) && \
 
 FROM golang:1-alpine
 COPY --from=build /sidecarinjector/sidecarinjector /sidecarinjector
-ENV PATH="/:${PATH}"
+ENV PATH="/:${PATH}" \
+    GOGC=20
 CMD ["/sidecarinjector"]
